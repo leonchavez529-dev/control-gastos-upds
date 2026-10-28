@@ -3,89 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Gastos - Calendario Mensual</title>
+    <title>Control de Gastos - Calendario</title>
     <style>
-@media (max-width: 768px) {
-            /* 1. Ajustar la barra de navegación superior */
-            .navbar {
-                flex-direction: column;
-                gap: 8px;
-                padding: 8px;
-            }
-
-            .nav-menu {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 3px;
-            }
-
-            .nav-menu a {
-                font-size: 10px;
-                padding: 3px 5px;
-            }
-
-            body {
-                padding-top: 150px; 
-            }
-
-            /* 2. Contenedor y Panel adaptados al 100% de la pantalla */
-            .main-container {
-                padding: 0 4px;
-                margin: 5px auto;
-                width: 100%;
-                box-sizing: border-box;
-            }
-
-            .panel {
-                padding: 10px 6px;
-                width: 100%;
-                box-sizing: border-box;
-            }
-
-            .panel-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 4px;
-                margin-bottom: 15px;
-            }
-
-            .panel-title {
-                font-size: 1.1rem;
-            }
-
-            /* 3. Cuadrícula del Calendario ajustada para celulares */
-            .calendar-grid {
-                display: grid;
-                grid-template-columns: repeat(7, minmax(0, 1fr)); /* Evita que las columnas se expandan de más */
-                gap: 2px; /* Espacio mínimo entre celdas */
-                width: 100%;
-                box-sizing: border-box;
-            }
-
-            .calendar-header {
-                font-size: 0.6rem; /* Nombres de los días más compactos */
-                padding: 3px 0;
-                text-align: center;
-            }
-
-            .calendar-day {
-                min-height: 52px;
-                padding: 3px;
-                box-sizing: border-box;
-            }
-
-            .day-number {
-                font-size: 0.75rem;
-            }
-
-            .day-balance {
-                font-size: 0.6rem; /* Montos adaptados para que no desborden */
-            }
-
-            .locked-icon {
-                font-size: 0.55rem;
-            }
-        }* {
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -168,7 +88,7 @@
             background-color: #218838;
         }
 
-        /* Contenedor y Calendario */
+        /* Contenedor y Paneles */
         .main-container {
             max-width: 1100px;
             margin: 40px auto;
@@ -198,62 +118,62 @@
             font-weight: 600;
         }
 
+        /* Estilos del Calendario Base (PC) */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
+            gap: 8px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .calendar-header {
             text-align: center;
-            font-size: 0.9rem;
+            font-weight: bold;
             color: #a0aec0;
-            font-weight: 700;
             padding: 8px 0;
-            background: #1e222b;
+            background-color: #1e222b;
             border-radius: 4px;
+            font-size: 0.9rem;
         }
 
         .calendar-day {
             background-color: #1e222b;
             border: 1px solid #2d3748;
-            border-radius: 8px;
+            border-radius: 6px;
             min-height: 90px;
-            padding: 10px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: border-color 0.2s;
+            cursor: pointer;
+            transition: 0.2s;
         }
 
         .calendar-day:hover {
             border-color: #63b3ed;
         }
 
-        .calendar-day.empty {
-            background-color: transparent;
-            border: none;
-            min-height: auto;
-        }
-
         .day-number {
-            font-size: 0.95rem;
             font-weight: bold;
-            color: #cbd5e0;
+            font-size: 0.9rem;
+            color: #e2e8f0;
         }
 
         .day-balance {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: bold;
             text-align: right;
         }
 
-        .balance-positive { color: #48bb78; }
-        .balance-negative { color: #f56565; }
+        .locked-day {
+            background-color: rgba(45, 55, 72, 0.5);
+            border-color: #d69e2e;
+        }
 
         .locked-icon {
-            font-size: 0.8rem;
-            color: #e53e3e;
+            font-size: 0.75rem;
+            color: #d69e2e;
         }
 
         footer {
@@ -264,6 +184,91 @@
             margin-top: 60px;
         }
         footer p { color: #718096; font-size: 0.85rem; }
+
+        /* ==========================================================================
+           ESTILOS RESPONSIVOS BLINDADOS PARA CELULARES (max-width: 768px)
+           ========================================================================= */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column !important;
+                gap: 8px !important;
+                padding: 8px !important;
+            }
+
+            .nav-menu {
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+                gap: 3px !important;
+            }
+
+            .nav-menu a {
+                font-size: 10px !important;
+                padding: 3px 6px !important;
+            }
+
+            body {
+                padding-top: 155px !important; 
+            }
+
+            .main-container {
+                padding: 0 4px !important;
+                margin: 5px auto !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .panel {
+                padding: 10px 4px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .panel-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 4px !important;
+                margin-bottom: 15px !important;
+            }
+
+            .panel-title {
+                font-size: 1.05rem !important;
+            }
+
+            /* Forzar el tamaño exacto de la cuadrícula sin salirse */
+            .calendar-grid {
+                grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+                gap: 2px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .calendar-header {
+                font-size: 0.55rem !important;
+                padding: 2px 0 !important;
+                text-align: center !important;
+            }
+
+            .calendar-day {
+                min-height: 50px !important;
+                padding: 2px !important;
+                box-sizing: border-box !important;
+            }
+
+            .day-number {
+                font-size: 0.7rem !important;
+            }
+
+            .day-balance {
+                font-size: 0.55rem !important;
+            }
+
+            .locked-icon {
+                font-size: 0.5rem !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -289,21 +294,23 @@
         <div class="panel">
             <div class="panel-header">
                 <span class="panel-title">Calendario Mensual Interactivo</span>
-                <span style="font-size: 0.95rem; color: #63b3ed; font-weight: bold;" id="mes-anio-txt">Octubre 2026</span>
+                <span style="font-size: 0.95rem; color: #63b3ed; font-weight: bold;" id="mes-actual-lbl">octubre de 2026</span>
             </div>
 
-            <div class="calendar-grid" style="margin-bottom: 10px;">
-                <div class="calendar-header">Domingo</div>
-                <div class="calendar-header">Lunes</div>
-                <div class="calendar-header">Martes</div>
-                <div class="calendar-header">Miércoles</div>
-                <div class="calendar-header">Jueves</div>
-                <div class="calendar-header">Viernes</div>
-                <div class="calendar-header">Sábado</div>
+            <!-- Días de la semana -->
+            <div class="calendar-grid" style="margin-bottom: 8px;">
+                <div class="calendar-header">Dom</div>
+                <div class="calendar-header">Lun</div>
+                <div class="calendar-header">Mar</div>
+                <div class="calendar-header">Mié</div>
+                <div class="calendar-header">Jue</div>
+                <div class="calendar-header">Vie</div>
+                <div class="calendar-header">Sáb</div>
             </div>
 
-            <div class="calendar-grid" id="calendar-body">
-                <!-- Inyectado dinámicamente desde localStorage -->
+            <!-- Cuadrícula dinámica de días -->
+            <div class="calendar-grid" id="calendar-days-container">
+                <!-- Inyectado mediante JavaScript -->
             </div>
         </div>
     </main>
@@ -313,64 +320,69 @@
     </footer>
 
     <script>
-        const hoy = new Date();
         const transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
         const diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
 
         window.onload = function() {
-            document.getElementById('mes-anio-txt').innerText = hoy.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-            renderizarCalendarioCompleto();
+            renderizarCalendarioOctubre2026();
         };
 
-        function renderizarCalendarioCompleto() {
-            const calendarBody = document.getElementById('calendar-body');
-            calendarBody.innerHTML = '';
+        function renderizarCalendarioOctubre2026() {
+            const container = document.getElementById('calendar-days-container');
+            container.innerHTML = '';
 
-            const anio = hoy.getFullYear();
-            const mes = hoy.getMonth();
+            // Octubre 2026 comienza en Jueves (índice 4 si Domingo = 0)
+            const primerDiaIndex = 4; 
+            const totalDias = 31;
 
-            const primerDiaMes = new Date(anio, mes, 1).getDay();
-            const diasEnMes = new Date(anio, mes + 1, 0).getDate();
-
-            for (let i = 0; i < primerDiaMes; i++) {
-                const cellEmpty = document.createElement('div');
-                cellEmpty.className = "calendar-day empty";
-                calendarBody.appendChild(cellEmpty);
+            // Rellenar espacios vacíos antes del día 1
+            for (let i = 0; i < primerDiaIndex; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'calendar-day';
+                emptyCell.style.backgroundColor = 'transparent';
+                emptyCell.style.borderColor = 'transparent';
+                container.appendChild(emptyCell);
             }
 
-            for (let d = 1; d <= diasEnMes; d++) {
-                const mesStr = (mes + 1).toString().padStart(2, '0');
-                const diaStr = d.toString().padStart(2, '0');
-                const fechaLoop = `${anio}-${mesStr}-${diaStr}`;
+            // Renderizar los 31 días de octubre de 2026
+            for (let dia = 1; dia <= totalDias; dia++) {
+                const diaStr = dia < 10 ? `0${dia}` : `${dia}`;
+                const fechaIso = `2026-10-${diaStr}`;
 
                 const cell = document.createElement('div');
-                cell.className = "calendar-day";
+                cell.className = 'calendar-day';
 
-                const txsDia = transacciones.filter(t => t.fecha === fechaLoop);
-                let balDia = 0;
-                txsDia.forEach(t => {
-                    balDia += (t.tipo === 'ingreso' ? t.monto : -t.monto);
+                // Verificar si el día está cerrado/bloqueado
+                const estaCerrado = diasCerrados.includes(fechaIso);
+                if (estaCerrado) {
+                    cell.classList.add('locked-day');
+                }
+
+                // Calcular balance del día
+                const transaccionesDia = transacciones.filter(t => t.fecha === fechaIso);
+                let balanceDia = 0;
+                transaccionesDia.forEach(t => {
+                    if (t.tipo === 'ingreso') balanceDia += t.monto;
+                    else balanceDia -= t.monto;
                 });
 
-                const estaCerrado = diasCerrados.includes(fechaLoop);
+                let balanceTexto = "Sin registros";
+                let colorBalance = "#718096";
 
-                let balanceHTML = '';
-                if (txsDia.length > 0) {
-                    const claseBal = balDia >= 0 ? 'balance-positive' : 'balance-negative';
-                    balanceHTML = `<div class="day-balance ${claseBal}">${balDia >= 0 ? '+' : ''}$${balDia.toFixed(2)}</div>`;
-                } else {
-                    balanceHTML = `<div style="font-size:0.75rem; color:#718096; text-align:right;">Sin registros</div>`;
+                if (transaccionesDia.length > 0) {
+                    balanceTexto = `${balanceDia >= 0 ? '+' : ''}$${balanceDia.toFixed(2)}`;
+                    colorBalance = balanceDia >= 0 ? '#48bb78' : '#f56565';
                 }
 
                 cell.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span class="day-number">${d}</span>
-                        ${estaCerrado ? '<span class="locked-icon" title="Día Cerrado/Encasillado">🔒 Cerrado</span>' : ''}
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span class="day-number">${dia}</span>
+                        ${estaCerrado ? '<span class="locked-icon" title="Día Cerrado">🔒</span>' : ''}
                     </div>
-                    ${balanceHTML}
+                    <div class="day-balance" style="color: ${colorBalance};">${balanceTexto}</div>
                 `;
 
-                calendarBody.appendChild(cell);
+                container.appendChild(cell);
             }
         }
 
