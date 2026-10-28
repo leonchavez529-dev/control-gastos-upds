@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Gastos - Calendario Mensual</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #cbd5e0;
+            background: #1e222b;
+            padding-top: 90px;
+        }
+
+        /* Cabecera y Navegación */
+        header {
+            background-color: #171923;
+            border-bottom: 3px solid #2d3748;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo-texto {
+            font-weight: 700;
+            color: #f7fafc;
+            font-size: 1.2rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: #cbd5e0;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: 0.2s;
+            font-size: 13.5px;
+        }
+
+        .nav-menu a:hover {
+            color: #63b3ed;
+            background: #2d3748;
+        }
+
+        .active {
+            color: #63b3ed !important;
+            background: #2d3748;
+            font-weight: bold;
+        }
+
+        .btn-export {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-export:hover {
+            background-color: #218838;
+        }
+
+        /* Contenedor y Calendario */
+        .main-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .panel {
+            background-color: #171923;
+            border: 1px solid #2d3748;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #2d3748;
+            padding-bottom: 12px;
+        }
+
+        .panel-title {
+            font-size: 1.4rem;
+            color: #f7fafc;
+            font-weight: 600;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #a0aec0;
+            font-weight: 700;
+            padding: 8px 0;
+            background: #1e222b;
+            border-radius: 4px;
+        }
+
+        .calendar-day {
+            background-color: #1e222b;
+            border: 1px solid #2d3748;
+            border-radius: 8px;
+            min-height: 90px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: border-color 0.2s;
+        }
+
+        .calendar-day:hover {
+            border-color: #63b3ed;
+        }
+
+        .calendar-day.empty {
+            background-color: transparent;
+            border: none;
+            min-height: auto;
+        }
+
+        .day-number {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #cbd5e0;
+        }
+
+        .day-balance {
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .balance-positive { color: #48bb78; }
+        .balance-negative { color: #f56565; }
+
+        .locked-icon {
+            font-size: 0.8rem;
+            color: #e53e3e;
+        }
+
+        footer {
+            background: #171923;
+            border-top: 1px solid #2d3748;
+            padding: 25px 5%;
+            text-align: center;
+            margin-top: 60px;
+        }
+        footer p { color: #718096; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <!-- CABECERA CON ENLACES A LAS 5 PÁGINAS -->
+    <header>
+        <nav class="navbar">
+            <span class="logo-texto">📅 Módulo de Calendario</span>
+
+            <ul class="nav-menu">
+                <li><a href="index.html">1. Registro Diario</a></li>
+                <li><a href="calendario.html" class="active">2. Calendario</a></li>
+                <li><a href="gastos_menores.html">3. Gastos Menores</a></li>
+                <li><a href="gastos_mayores.html">4. Gastos Mayores</a></li>
+                <li><a href="resumen_salarial.html">5. Ingresos y Cierre</a></li>
+            </ul>
+
+            <button class="btn-export" onclick="exportarCSV()">📥 Exportar CSV</button>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title">Calendario Mensual Interactivo</span>
+                <span style="font-size: 0.95rem; color: #63b3ed; font-weight: bold;" id="mes-anio-txt">Octubre 2026</span>
+            </div>
+
+            <div class="calendar-grid" style="margin-bottom: 10px;">
+                <div class="calendar-header">Domingo</div>
+                <div class="calendar-header">Lunes</div>
+                <div class="calendar-header">Martes</div>
+                <div class="calendar-header">Miércoles</div>
+                <div class="calendar-header">Jueves</div>
+                <div class="calendar-header">Viernes</div>
+                <div class="calendar-header">Sábado</div>
+            </div>
+
+            <div class="calendar-grid" id="calendar-body">
+                <!-- Inyectado dinámicamente desde localStorage -->
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Sistema de Control Financiero - <strong>Rodrigo León Chavez</strong> (UPDS - La Paz, Bolivia)</p>
+    </footer>
+
+    <script>
+        const hoy = new Date();
+        const transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+        const diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+
+        window.onload = function() {
+            document.getElementById('mes-anio-txt').innerText = hoy.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+            renderizarCalendarioCompleto();
+        };
+
+        function renderizarCalendarioCompleto() {
+            const calendarBody = document.getElementById('calendar-body');
+            calendarBody.innerHTML = '';
+
+            const anio = hoy.getFullYear();
+            const mes = hoy.getMonth();
+
+            const primerDiaMes = new Date(anio, mes, 1).getDay();
+            const diasEnMes = new Date(anio, mes + 1, 0).getDate();
+
+            for (let i = 0; i < primerDiaMes; i++) {
+                const cellEmpty = document.createElement('div');
+                cellEmpty.className = "calendar-day empty";
+                calendarBody.appendChild(cellEmpty);
+            }
+
+            for (let d = 1; d <= diasEnMes; d++) {
+                const mesStr = (mes + 1).toString().padStart(2, '0');
+                const diaStr = d.toString().padStart(2, '0');
+                const fechaLoop = `${anio}-${mesStr}-${diaStr}`;
+
+                const cell = document.createElement('div');
+                cell.className = "calendar-day";
+
+                const txsDia = transacciones.filter(t => t.fecha === fechaLoop);
+                let balDia = 0;
+                txsDia.forEach(t => {
+                    balDia += (t.tipo === 'ingreso' ? t.monto : -t.monto);
+                });
+
+                const estaCerrado = diasCerrados.includes(fechaLoop);
+
+                let balanceHTML = '';
+                if (txsDia.length > 0) {
+                    const claseBal = balDia >= 0 ? 'balance-positive' : 'balance-negative';
+                    balanceHTML = `<div class="day-balance ${claseBal}">${balDia >= 0 ? '+' : ''}$${balDia.toFixed(2)}</div>`;
+                } else {
+                    balanceHTML = `<div style="font-size:0.75rem; color:#718096; text-align:right;">Sin registros</div>`;
+                }
+
+                cell.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="day-number">${d}</span>
+                        ${estaCerrado ? '<span class="locked-icon" title="Día Cerrado/Encasillado">🔒 Cerrado</span>' : ''}
+                    </div>
+                    ${balanceHTML}
+                `;
+
+                calendarBody.appendChild(cell);
+            }
+        }
+
+        function exportarCSV() {
+            if (transacciones.length === 0) { alert("Sin registros."); return; }
+            let csv = "ID,Tipo,Categoria,Monto,Descripcion,Fecha\n";
+            transacciones.forEach(t => { csv += `${t.id},${t.tipo},${t.categoria},${t.monto},"${t.descripcion}",${t.fecha}\n`; });
+            const link = document.createElement("a");
+            link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
+            link.download = `reporte_gastos.csv`;
+            link.click();
+        }
+    </script>
+</body>
+</html>

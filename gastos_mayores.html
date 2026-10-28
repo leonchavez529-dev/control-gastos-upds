@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Gastos - Gastos Mayores</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #cbd5e0;
+            background: #1e222b;
+            padding-top: 90px;
+        }
+
+        /* Cabecera y Navegación */
+        header {
+            background-color: #171923;
+            border-bottom: 3px solid #2d3748;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo-texto {
+            font-weight: 700;
+            color: #f7fafc;
+            font-size: 1.2rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: #cbd5e0;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: 0.2s;
+            font-size: 13.5px;
+        }
+
+        .nav-menu a:hover {
+            color: #63b3ed;
+            background: #2d3748;
+        }
+
+        .active {
+            color: #63b3ed !important;
+            background: #2d3748;
+            font-weight: bold;
+        }
+
+        .btn-export {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-export:hover {
+            background-color: #218838;
+        }
+
+        /* Contenedor y Paneles */
+        .main-container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .panel {
+            background-color: #171923;
+            border: 1px solid #2d3748;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #2d3748;
+            padding-bottom: 12px;
+        }
+
+        .panel-title {
+            font-size: 1.4rem;
+            color: #f7fafc;
+            font-weight: 600;
+        }
+
+        /* Tabla */
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid #2d3748; font-size: 0.95rem; }
+        th { background-color: #1e222b; color: #a0aec0; font-weight: 600; }
+
+        .badge-mayor {
+            background: rgba(229, 62, 62, 0.2);
+            color: #e53e3e;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        footer {
+            background: #171923;
+            border-top: 1px solid #2d3748;
+            padding: 25px 5%;
+            text-align: center;
+            margin-top: 60px;
+        }
+        footer p { color: #718096; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <!-- CABECERA CON ENLACES A LAS 5 PÁGINAS -->
+    <header>
+        <nav class="navbar">
+            <span class="logo-texto">💻 Módulo de Gastos Mayores</span>
+
+            <ul class="nav-menu">
+                <li><a href="index.html">1. Registro Diario</a></li>
+                <li><a href="calendario.html">2. Calendario</a></li>
+                <li><a href="gastos_menores.html">3. Gastos Menores</a></li>
+                <li><a href="gastos_mayores.html" class="active">4. Gastos Mayores</a></li>
+                <li><a href="resumen_salarial.html">5. Ingresos y Cierre</a></li>
+            </ul>
+
+            <button class="btn-export" onclick="exportarCSV()">📥 Exportar CSV</button>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title">Historial de Gastos Mayores (Equipos, Componentes y Activos)</span>
+                <span style="font-size: 0.95rem; color: #e53e3e; font-weight: bold;" id="total-mayores-lbl">Total: $0.00</span>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Clasificación</th>
+                            <th>Descripción</th>
+                            <th>Monto ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-mayores-body">
+                        <!-- Inyectado dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Sistema de Control Financiero - <strong>Rodrigo León Chavez</strong> (UPDS - La Paz, Bolivia)</p>
+    </footer>
+
+    <script>
+        const transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+
+        window.onload = function() {
+            renderizarGastosMayores();
+        };
+
+        function renderizarGastosMayores() {
+            const tbody = document.getElementById('tabla-mayores-body');
+            tbody.innerHTML = '';
+
+            // Filtrar únicamente los gastos que sean de categoría 'mayor'
+            const mayores = transacciones.filter(t => t.tipo === 'gasto' && t.categoria === 'mayor');
+            let sumaMayores = 0;
+
+            if (mayores.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#718096; padding: 30px;">No se registran gastos mayores o compras de equipos en el sistema.</td></tr>`;
+            } else {
+                mayores.forEach(t => {
+                    sumaMayores += t.monto;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${t.fecha}</td>
+                        <td><span class="badge-mayor">Gasto Mayor</span></td>
+                        <td>${t.descripcion}</td>
+                        <td style="font-weight:bold; color: #f56565;">-$${t.monto.toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('total-mayores-lbl').innerText = `Total Acumulado: $${sumaMayores.toFixed(2)}`;
+        }
+
+        function exportarCSV() {
+            if (transacciones.length === 0) { alert("Sin registros."); return; }
+            let csv = "ID,Tipo,Categoria,Monto,Descripcion,Fecha\n";
+            transacciones.forEach(t => { csv += `${t.id},${t.tipo},${t.categoria},${t.monto},"${t.descripcion}",${t.fecha}\n`; });
+            const link = document.createElement("a");
+            link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
+            link.download = `reporte_gastos.csv`;
+            link.click();
+        }
+    </script>
+</body>
+</html>

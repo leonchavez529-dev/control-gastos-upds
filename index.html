@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Gastos - Panel Principal</title>
+    <!-- Chart.js para gráficos financieros -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #cbd5e0;
+            background: #1e222b;
+            padding-top: 90px;
+        }
+
+        /* Cabecera y Navegación entre las 5 Páginas de la App */
+        header {
+            background-color: #171923;
+            border-bottom: 3px solid #2d3748;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo-texto {
+            font-weight: 700;
+            color: #f7fafc;
+            font-size: 1.2rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: #cbd5e0;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: 0.2s;
+            font-size: 13.5px;
+        }
+
+        .nav-menu a:hover {
+            color: #63b3ed;
+            background: #2d3748;
+        }
+
+        .active {
+            color: #63b3ed !important;
+            background: #2d3748;
+            font-weight: bold;
+        }
+
+        .btn-export {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-export:hover {
+            background-color: #218838;
+        }
+
+        /* Contenedor y Paneles */
+        .main-container {
+            max-width: 1300px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background-color: #171923;
+            border: 1px solid #2d3748;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #2d3748;
+            padding-bottom: 10px;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            color: #f7fafc;
+            font-weight: 600;
+        }
+
+        /* Tarjetas de Resumen */
+        .cards-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: #1e222b;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #a0aec0;
+        }
+
+        .card.ingresos { border-left-color: #48bb78; }
+        .card.gastos { border-left-color: #f56565; }
+        .card.balance { border-left-color: #4299e1; }
+
+        .card-title { font-size: 0.8rem; color: #a0aec0; text-transform: uppercase; }
+        .card-value { font-size: 1.4rem; font-weight: 700; color: #f7fafc; margin-top: 5px; }
+
+        /* Formularios */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 0.9rem; color: #cbd5e0; }
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: #1e222b;
+            border: 1px solid #4a5568;
+            border-radius: 6px;
+            color: #f7fafc;
+            font-size: 0.95rem;
+        }
+        .form-control:focus { outline: none; border-color: #63b3ed; }
+
+        .btn-submit {
+            width: 100%;
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .btn-submit:hover { background-color: #2b6cb0; }
+
+        .btn-lock {
+            background-color: #e53e3e;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-lock:hover { background-color: #c53030; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge-open { background: rgba(72, 187, 120, 0.2); color: #48bb78; }
+        .badge-closed { background: rgba(245, 101, 101, 0.2); color: #f56565; }
+
+        /* Tabla */
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #2d3748; font-size: 0.9rem; }
+        th { background-color: #1e222b; color: #a0aec0; font-weight: 600; }
+
+        footer {
+            background: #171923;
+            border-top: 1px solid #2d3748;
+            padding: 25px 5%;
+            text-align: center;
+            margin-top: 50px;
+        }
+        footer p { color: #718096; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <!-- CABECERA CON ENLACES A LAS 5 PÁGINAS DE LA APP -->
+    <header>
+        <nav class="navbar">
+            <span class="logo-texto">💰 Control Financiero Personal</span>
+
+            <ul class="nav-menu">
+                <li><a href="index.html" class="active">1. Registro Diario</a></li>
+                <li><a href="calendario.html">2. Calendario</a></li>
+                <li><a href="gastos_menores.html">3. Gastos Menores</a></li>
+                <li><a href="gastos_mayores.html">4. Gastos Mayores</a></li>
+                <li><a href="resumen_salarial.html">5. Ingresos y Cierre</a></li>
+            </ul>
+
+            <button class="btn-export" onclick="exportarCSV()">📥 Exportar CSV</button>
+        </nav>
+    </header>
+
+    <main class="main-container">
+
+        <!-- Resumen de Tarjetas Financieras -->
+        <div class="cards-summary">
+            <div class="card ingresos">
+                <div class="card-title">Total Ingresos</div>
+                <div class="card-value" id="lbl-ingresos">$0.00</div>
+            </div>
+            <div class="card gastos">
+                <div class="card-title">Total Gastos</div>
+                <div class="card-value" id="lbl-gastos">$0.00</div>
+            </div>
+            <div class="card balance">
+                <div class="card-title">Balance Neto</div>
+                <div class="card-value" id="lbl-balance">$0.00</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            
+            <!-- Panel Izquierdo: Anotación de Gastos e Ingresos -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <span class="panel-title">Anotación del Día</span>
+                        <div style="font-size: 0.8rem; color: #a0aec0;" id="fecha-hoy-txt"></div>
+                    </div>
+                    <div>
+                        <span class="status-badge badge-open" id="badge-estado">Día Abierto</span>
+                    </div>
+                </div>
+
+                <form id="form-gastos" onsubmit="guardarRegistro(event)">
+                    <div class="form-group">
+                        <label for="tipo">Tipo de Movimiento</label>
+                        <select id="tipo" class="form-control" onchange="actualizarCategorias()">
+                            <option value="gasto">Gasto (Pérdida)</option>
+                            <option value="ingreso">Ingreso (Ganancia)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoria">Magnitud / Clasificación</label>
+                        <select id="categoria" class="form-control">
+                            <option value="menor">Gasto Menor</option>
+                            <option value="mayor">Gasto Mayor</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="monto">Monto ($ USD)</label>
+                        <input type="number" step="0.01" id="monto" class="form-control" placeholder="Ej. 15.00" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descripcion">Descripción / Nota</label>
+                        <input type="text" id="descripcion" class="form-control" placeholder="Ej. Pasajes y almuerzo" required>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btn-guardar">+ Registrar Movimiento</button>
+                </form>
+
+                <hr style="border: 0; border-top: 1px solid #2d3748; margin: 20px 0;">
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.85rem; color: #a0aec0;">¿Terminaste tu día? Encasíllalo para bloquear cambios.</span>
+                    <button class="btn-lock" id="btn-cerrar-dia" onclick="conmutarCierreDia()">🔒 Encasillar Día</button>
+                </div>
+            </div>
+
+            <!-- Panel Derecho: Gráfico -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">Distribución General</span>
+                </div>
+                <div style="height: 220px; position: relative;">
+                    <canvas id="graficoFinanzas"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Tabla del Día Actual -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title">Movimientos Registrados Hoy</span>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Clasificación</th>
+                            <th>Descripción</th>
+                            <th>Monto ($)</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body">
+                        <!-- Dinámico -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>© 2026 Sistema de Control Financiero - <strong>Rodrigo León Chavez</strong> (UPDS - La Paz, Bolivia)</p>
+    </footer>
+
+    <script>
+        const hoy = new Date();
+        const fechaHoyISO = hoy.toISOString().split('T')[0];
+
+        let transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+        let diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+        let miGrafico = null;
+
+        window.onload = function() {
+            document.getElementById('fecha-hoy-txt').innerText = "Fecha: " + hoy.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            actualizarInterfaz();
+        };
+
+        function actualizarCategorias() {
+            const tipo = document.getElementById('tipo').value;
+            const comboCat = document.getElementById('categoria');
+            comboCat.innerHTML = '';
+            if (tipo === 'gasto') {
+                comboCat.innerHTML = `<option value="menor">Gasto Menor</option><option value="mayor">Gasto Mayor</option>`;
+            } else {
+                comboCat.innerHTML = `<option value="salarial">Ingreso Salarial / Principal</option><option value="menor">Ingreso Extra</option>`;
+            }
+        }
+
+        function guardarRegistro(e) {
+            e.preventDefault();
+            if (diasCerrados.includes(fechaHoyISO)) {
+                alert("El día actual está encasillado/cerrado.");
+                return;
+            }
+            const nueva = {
+                id: Date.now(),
+                tipo: document.getElementById('tipo').value,
+                categoria: document.getElementById('categoria').value,
+                monto: parseFloat(document.getElementById('monto').value),
+                descripcion: document.getElementById('descripcion').value,
+                fecha: fechaHoyISO
+            };
+            transacciones.push(nueva);
+            localStorage.setItem('gastos_app_transacciones', JSON.stringify(transacciones));
+            document.getElementById('monto').value = '';
+            document.getElementById('descripcion').value = '';
+            actualizarInterfaz();
+        }
+
+        function eliminarRegistro(id) {
+            if (diasCerrados.includes(fechaHoyISO)) {
+                alert("No puedes borrar registros de un día encasillado.");
+                return;
+            }
+            if (confirm("¿Eliminar este registro?")) {
+                transacciones = transacciones.filter(t => t.id !== id);
+                localStorage.setItem('gastos_app_transacciones', JSON.stringify(transacciones));
+                actualizarInterfaz();
+            }
+        }
+
+        function conmutarCierreDia() {
+            if (diasCerrados.includes(fechaHoyISO)) {
+                diasCerrados = diasCerrados.filter(d => d !== fechaHoyISO);
+                alert("Jornada reabierta.");
+            } else {
+                diasCerrados.push(fechaHoyISO);
+                alert("Jornada encasillada (bloqueada) correctamente.");
+            }
+            localStorage.setItem('gastos_app_dias_cerrados', JSON.stringify(diasCerrados));
+            actualizarInterfaz();
+        }
+
+        function actualizarInterfaz() {
+            const estaCerrado = diasCerrados.includes(fechaHoyISO);
+            const badge = document.getElementById('badge-estado');
+            const btnCerrar = document.getElementById('btn-cerrar-dia');
+            const btnGuardar = document.getElementById('btn-guardar');
+
+            if (estaCerrado) {
+                badge.className = "status-badge badge-closed";
+                badge.innerText = "Día Encasillado";
+                btnCerrar.innerText = "🔓 Desbloquear Día";
+                btnGuardar.disabled = true;
+                btnGuardar.style.opacity = "0.5";
+            } else {
+                badge.className = "status-badge badge-open";
+                badge.innerText = "Día Abierto";
+                btnCerrar.innerText = "🔒 Encasillar Día";
+                btnGuardar.disabled = false;
+                btnGuardar.style.opacity = "1";
+            }
+
+            let totalIngresos = 0, totalGastos = 0;
+            transacciones.forEach(t => {
+                if (t.tipo === 'ingreso') totalIngresos += t.monto;
+                if (t.tipo === 'gasto') totalGastos += t.monto;
+            });
+
+            document.getElementById('lbl-ingresos').innerText = `$${totalIngresos.toFixed(2)}`;
+            document.getElementById('lbl-gastos').innerText = `$${totalGastos.toFixed(2)}`;
+            document.getElementById('lbl-balance').innerText = `$${(totalIngresos - totalGastos).toFixed(2)}`;
+
+            const tablaBody = document.getElementById('tabla-body');
+            tablaBody.innerHTML = '';
+            const txsHoy = transacciones.filter(t => t.fecha === fechaHoyISO);
+
+            if (txsHoy.length === 0) {
+                tablaBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#718096;">No hay movimientos hoy.</td></tr>`;
+            } else {
+                txsHoy.forEach(t => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><span style="color: ${t.tipo==='ingreso'?'#48bb78':'#f56565'}; font-weight:bold;">${t.tipo.toUpperCase()}</span></td>
+                        <td style="text-transform: capitalize;">${t.categoria}</td>
+                        <td>${t.descripcion}</td>
+                        <td style="font-weight:bold;">$${t.monto.toFixed(2)}</td>
+                        <td><button onclick="eliminarRegistro(${t.id})" style="background:none; border:none; color:#f56565; cursor:pointer;">🗑️</button></td>
+                    `;
+                    tablaBody.appendChild(tr);
+                });
+            }
+
+            const ctx = document.getElementById('graficoFinanzas').getContext('2d');
+            if (miGrafico) miGrafico.destroy();
+            miGrafico = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Ingresos', 'Gastos'],
+                    datasets: [{ data: [totalIngresos, totalGastos], backgroundColor: ['#48bb78', '#f56565'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e0' } } } }
+            });
+        }
+
+        function exportarCSV() {
+            if (transacciones.length === 0) { alert("Sin registros."); return; }
+            let csv = "ID,Tipo,Categoria,Monto,Descripcion,Fecha\n";
+            transacciones.forEach(t => { csv += `${t.id},${t.tipo},${t.categoria},${t.monto},"${t.descripcion}",${t.fecha}\n`; });
+            const link = document.createElement("a");
+            link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
+            link.download = `reporte_gastos.csv`;
+            link.click();
+        }
+    </script>
+</body>
+</html>
