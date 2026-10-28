@@ -294,7 +294,7 @@
         <div class="panel">
             <div class="panel-header">
                 <span class="panel-title">Calendario Mensual Interactivo</span>
-                <span style="font-size: 0.95rem; color: #63b3ed; font-weight: bold;" id="mes-actual-lbl">octubre de 2026</span>
+                <span style="font-size: 0.95rem; color: #63b3ed; font-weight: bold;" id="mes-actual-lbl">Cargando mes...</span>
             </div>
 
             <!-- Días de la semana -->
@@ -310,7 +310,7 @@
 
             <!-- Cuadrícula dinámica de días -->
             <div class="calendar-grid" id="calendar-days-container">
-                <!-- Inyectado mediante JavaScript -->
+                <!-- Inyectado mediante JavaScript dinámico -->
             </div>
         </div>
     </main>
@@ -324,18 +324,35 @@
         const diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
 
         window.onload = function() {
-            renderizarCalendarioOctubre2026();
+            renderizarCalendarioDinamico();
         };
 
-        function renderizarCalendarioOctubre2026() {
+        function renderizarCalendarioDinamico() {
             const container = document.getElementById('calendar-days-container');
             container.innerHTML = '';
 
-            // Octubre 2026 comienza en Jueves (índice 4 si Domingo = 0)
-            const primerDiaIndex = 4; 
-            const totalDias = 31;
+            // Tomar la fecha actual del sistema operativo (mes y año en curso)
+            const fechaActual = new Date();
+            const año = fechaActual.getFullYear();
+            const mes = fechaActual.getMonth(); // 0 = Enero, 11 = Diciembre
 
-            // Rellenar espacios vacíos antes del día 1
+            // Nombres de los meses formateados
+            const nombresMeses = [
+                "enero", "febrero", "marzo", "abril", "mayo", "junio",
+                "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+            ];
+
+            // Actualizar el título del mes automáticamente
+            document.getElementById('mes-actual-lbl').innerText = `${nombresMeses[mes]} de ${año}`;
+
+            // Obtener el primer día del mes actual (0 = Domingo, 1 = Lunes, etc.)
+            const primerDiaMes = new Date(año, mes, 1);
+            const primerDiaIndex = primerDiaMes.getDay(); 
+
+            // Obtener el total de días que tiene el mes en curso
+            const totalDias = new Date(año, mes + 1, 0).getDate();
+
+            // Rellenar espacios vacíos antes del día 1 del mes
             for (let i = 0; i < primerDiaIndex; i++) {
                 const emptyCell = document.createElement('div');
                 emptyCell.className = 'calendar-day';
@@ -344,21 +361,22 @@
                 container.appendChild(emptyCell);
             }
 
-            // Renderizar los 31 días de octubre de 2026
+            // Renderizar dinámicamente todos los días del mes actual
             for (let dia = 1; dia <= totalDias; dia++) {
                 const diaStr = dia < 10 ? `0${dia}` : `${dia}`;
-                const fechaIso = `2026-10-${diaStr}`;
+                const mesStr = (mes + 1) < 10 ? `0${mes + 1}` : `${mes + 1}`;
+                const fechaIso = `${año}-${mesStr}-${diaStr}`;
 
                 const cell = document.createElement('div');
                 cell.className = 'calendar-day';
 
-                // Verificar si el día está cerrado/bloqueado
+                // Verificar si el día está cerrado / bloqueado
                 const estaCerrado = diasCerrados.includes(fechaIso);
                 if (estaCerrado) {
                     cell.classList.add('locked-day');
                 }
 
-                // Calcular balance del día
+                // Filtrar transacciones correspondientes a esta fecha exacta
                 const transaccionesDia = transacciones.filter(t => t.fecha === fechaIso);
                 let balanceDia = 0;
                 transaccionesDia.forEach(t => {
