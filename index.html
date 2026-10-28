@@ -6,7 +6,49 @@
     <title>Control de Gastos - Panel Principal</title>
     <!-- Chart.js para gráficos financieros -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
+    <style>/* ==========================================================================
+   ESTILOS RESPONSIVOS PARA CELULARES (Pantallas menores a 768px)
+   ========================================================================= */
+@media (max-width: 768px) {
+    /* 1. Ajustar la barra de navegación para que los enlaces no se salgan */
+    .navbar {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .nav-menu a {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+
+    /* 2. Empujar el contenido hacia abajo para que la barra fija no lo tape */
+    body {
+        padding-top: 130px; 
+    }
+
+    /* 3. Convertir las tarjetas de resumen y paneles en una sola columna */
+    .dashboard-grid, 
+    .cards-summary {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* 4. Reducir márgenes generales para aprovechar la pantalla del celular */
+    .main-container {
+        padding: 0 10px;
+        margin: 15px auto;
+    }
+
+    .panel {
+        padding: 15px;
+    }
+}
         * {
             margin: 0;
             padding: 0;
