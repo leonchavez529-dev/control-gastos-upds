@@ -6,48 +6,74 @@
     <title>Control de Gastos - Calendario Mensual</title>
     <style>
         /* ==========================================================================
-   ESTILOS RESPONSIVOS PARA CELULARES (Pantallas menores a 768px)
-   ========================================================================= */
-@media (max-width: 768px) {
-    /* 1. Ajustar la barra de navegación para que los enlaces no se salgan */
-    .navbar {
-        flex-direction: column;
-        gap: 10px;
-        padding: 10px;
-    }
+           ESTILOS RESPONSIVOS ESPECÍFICOS PARA EL CALENDAR EN CELULARES
+           ========================================================================= */
+        @media (max-width: 768px) {
+            /* 1. Ajustar la barra de navegación superior */
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
 
-    .nav-menu {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 5px;
-    }
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 4px;
+            }
 
-    .nav-menu a {
-        font-size: 11px;
-        padding: 5px 8px;
-    }
+            .nav-menu a {
+                font-size: 10.5px;
+                padding: 4px 6px;
+            }
 
-    /* 2. Empujar el contenido hacia abajo para que la barra fija no lo tape */
-    body {
-        padding-top: 130px; 
-    }
+            body {
+                padding-top: 140px; 
+            }
 
-    /* 3. Convertir las tarjetas de resumen y paneles en una sola columna */
-    .dashboard-grid, 
-    .cards-summary {
-        grid-template-columns: 1fr !important;
-    }
+            /* 2. Reducir márgenes del panel principal */
+            .main-container {
+                padding: 0 5px;
+                margin: 10px auto;
+            }
 
-    /* 4. Reducir márgenes generales para aprovechar la pantalla del celular */
-    .main-container {
-        padding: 0 10px;
-        margin: 15px auto;
-    }
+            .panel {
+                padding: 12px;
+            }
 
-    .panel {
-        padding: 15px;
-    }
-}
+            .panel-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            /* 3. Ajustar el Calendario para pantallas pequeñas */
+            .calendar-grid {
+                gap: 4px; /* Reducir espacio entre celdas */
+            }
+
+            .calendar-header {
+                font-size: 0.7rem; /* Reducir nombres de los días (Dom, Lun...) */
+                padding: 4px 0;
+            }
+
+            .calendar-day {
+                min-height: 65px; /* Reducir altura de la celda para que quepa en la pantalla */
+                padding: 5px;
+            }
+
+            .day-number {
+                font-size: 0.8rem;
+            }
+
+            .day-balance {
+                font-size: 0.7rem; /* Reducir tamaño del monto para que no desborde */
+            }
+
+            .locked-icon {
+                font-size: 0.65rem;
+            }
+        }
         * {
             margin: 0;
             padding: 0;
