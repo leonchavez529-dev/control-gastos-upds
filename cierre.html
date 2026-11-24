@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>5. Resumen - Control Financiero</title>
+  <title>5. Cierre - Control Financiero</title>
   <style>
     :root {
       --bg-main: #0f172a;
@@ -20,7 +20,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-    body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+    body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
     header {
       background: var(--bg-nav);
@@ -85,12 +85,19 @@
     }
 
     @media (max-width: 768px) {
-      .header-inner { justify-content: center; text-align: center; }
+      header { padding: 12px 10px; }
+      .header-inner { justify-content: center; text-align: center; gap: 10px; }
+      .brand { font-size: 16px; }
+      nav { gap: 4px; }
+      nav a { font-size: 12px; padding: 6px 8px; }
+      .btn-csv { font-size: 12px; padding: 7px 11px; }
+      .container { padding: 14px 10px 24px; }
+      .card { padding: 14px 12px; }
     }
 
     .summary-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 14px;
       margin-bottom: 20px;
     }
@@ -147,6 +154,7 @@
       font-size: 12px;
       font-weight: 600;
       display: inline-block;
+      white-space: nowrap;
     }
     .tag-ingreso {
       background: rgba(16, 185, 129, 0.16);
@@ -198,14 +206,14 @@
 <body>
   <header>
     <div class="header-inner">
-      <div class="brand">📊 Resumen General Financiero</div>
+      <div class="brand">📊 Cierre</div>
       <nav>
-        <a href="index.html">1. Registro Diario</a>
-        <a href="calendario.html">2. Calendario</a>
-        <a href="gastos.html">3. Gastos</a>
-        <a href="Ingresos.html">4. Ingresos</a>
-        <a href="cierre.html" class="active">5. cierre</a>
-        <a href="respaldo.html">6. Respaldo</a>
+        <a href="./index.html">1. Registro Diario</a>
+        <a href="./calendario.html">2. Calendario</a>
+        <a href="./gastos-menores.html">3. Gastos</a>
+        <a href="./gastos-mayores.html">4. Ingresos</a>
+        <a href="./ingresos-cierre.html" class="active">5. Cierre</a>
+        <a href="./respaldo.html">6. Respaldo</a>
       </nav>
       <button type="button" class="btn-csv" onclick="exportarCSV()">📥 Exportar CSV</button>
     </div>
@@ -234,8 +242,8 @@
     <section class="card">
       <div class="card-header">
         <div>
-          <div class="card-title">Recopilación General de Movimientos</div>
-          <div class="card-subtitle">Todo lo registrado en el sistema consolidado en una sola vista</div>
+          <div class="card-title">Recopilación General del Cierre</div>
+          <div class="card-subtitle">Lo más importante de todo consolidado en una sola vista</div>
         </div>
       </div>
       <div style="overflow-x: auto;">
@@ -267,16 +275,27 @@
     const ahora = new Date();
     const fechaHoyISO = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
 
-    let transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
-    let diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+    function leerJSONSeguro(clave, valorPorDefecto) {
+      try {
+        const raw = localStorage.getItem(clave);
+        if (!raw) return valorPorDefecto;
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : valorPorDefecto;
+      } catch (e) {
+        return valorPorDefecto;
+      }
+    }
+
+    let transacciones = leerJSONSeguro('gastos_app_transacciones', []);
+    let diasCerrados = leerJSONSeguro('gastos_app_dias_cerrados', []);
 
     window.onload = function () {
       renderizarResumen();
     };
 
     function eliminarRegistro(id) {
-      diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
-      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+      diasCerrados = leerJSONSeguro('gastos_app_dias_cerrados', []);
+      transacciones = leerJSONSeguro('gastos_app_transacciones', []);
 
       const item = transacciones.find(t => t.id === id);
       if (!item) return;
@@ -308,7 +327,7 @@
     }
 
     function renderizarResumen() {
-      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+      transacciones = leerJSONSeguro('gastos_app_transacciones', []);
 
       let totalIngresos = 0;
       let totalGastos = 0;
@@ -353,7 +372,7 @@
     }
 
     function exportarCSV() {
-      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+      transacciones = leerJSONSeguro('gastos_app_transacciones', []);
       let totalIngresos = 0;
       let totalGastos = 0;
       let totalPrestamos = 0;
