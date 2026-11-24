@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Módulo de Calendario - Control Financiero</title>
+  <title>2. Calendario - Control Financiero</title>
   <style>
     :root {
       --bg-main: #0f172a;
@@ -19,7 +19,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-    body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+    body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
     header {
       background: var(--bg-nav);
@@ -105,7 +105,7 @@
 
     .cal-grid {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(7, minmax(0, 1fr));
       gap: 6px;
     }
     .cal-dow {
@@ -122,6 +122,7 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       min-height: 84px;
+      min-width: 0;
       padding: 8px;
       cursor: pointer;
       display: flex;
@@ -138,8 +139,9 @@
       justify-content: space-between;
       align-items: center;
       gap: 4px;
+      min-width: 0;
     }
-    .day-number { font-size: 15px; font-weight: 700; }
+    .day-number { font-size: 15px; font-weight: 700; flex-shrink: 0; }
     .day-flag-open {
       font-size: 10px;
       font-weight: 600;
@@ -148,6 +150,9 @@
       border: 1px solid rgba(16, 185, 129, 0.3);
       padding: 2px 5px;
       border-radius: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .day-flag-closed {
       font-size: 10px;
@@ -157,17 +162,48 @@
       border: 1px solid rgba(239, 68, 68, 0.35);
       padding: 2px 5px;
       border-radius: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .day-status { font-size: 12px; text-align: right; color: var(--text-muted); }
-    .day-pos { font-size: 12px; font-weight: 700; text-align: right; color: #34d399; }
-    .day-neg { font-size: 12px; font-weight: 700; text-align: right; color: #f87171; }
+    .day-status { font-size: 12px; text-align: right; color: var(--text-muted); line-height: 1.2; }
+    .day-pos { font-size: 12px; font-weight: 700; text-align: right; color: #34d399; word-break: break-word; }
+    .day-neg { font-size: 12px; font-weight: 700; text-align: right; color: #f87171; word-break: break-word; }
 
     footer {
       text-align: center;
       padding: 18px 12px 26px;
       color: var(--text-muted);
       font-size: 13px;
+    }
+
+    @media (max-width: 768px) {
+      header { padding: 12px 10px; }
+      .header-inner { justify-content: center; text-align: center; gap: 10px; }
+      .brand { font-size: 16px; }
+      nav { gap: 4px; }
+      nav a { font-size: 12px; padding: 6px 8px; }
+      .btn-csv { font-size: 12px; padding: 7px 11px; }
+      .container { padding: 12px 8px 24px; }
+      .card { padding: 12px 10px; border-radius: 8px; }
+      .cal-title { font-size: 17px; }
+      .cal-month { font-size: 15px; margin-bottom: 12px; }
+      .cal-grid { gap: 4px; }
+      .cal-dow { font-size: 11px; padding: 6px 2px; border-radius: 5px; }
+      .cal-day { min-height: 66px; padding: 5px 4px; border-radius: 6px; gap: 2px; }
+      .day-number { font-size: 12px; }
+      .day-flag-open, .day-flag-closed { font-size: 8px; padding: 1px 3px; border-radius: 4px; }
+      .day-status, .day-pos, .day-neg { font-size: 10px; }
+    }
+
+    @media (max-width: 420px) {
+      .cal-grid { gap: 3px; }
+      .cal-dow { font-size: 10px; padding: 5px 1px; }
+      .cal-day { min-height: 58px; padding: 4px 3px; }
+      .day-top { flex-direction: column; align-items: flex-start; gap: 2px; }
+      .day-flag-open, .day-flag-closed { font-size: 7.5px; padding: 1px 3px; }
+      .day-status, .day-pos, .day-neg { font-size: 9px; text-align: left; }
     }
   </style>
 </head>
@@ -178,9 +214,9 @@
       <nav>
         <a href="index.html">1. Registro Diario</a>
         <a href="calendario.html" class="active">2. Calendario</a>
-        <a href="gastos.html">3. Gastos</a>
-        <a href="ingresos.html">4. ingresos</a>
-        <a href="cierre.html">5. Cierre</a>
+        <a href="gastos-menores.html">3. Gastos</a>
+        <a href="gastos-mayores.html">4. Ingresos</a>
+        <a href="ingresos-cierre.html">5. Cierre</a>
         <a href="respaldo.html">6. Respaldo</a>
       </nav>
       <button type="button" class="btn-csv" onclick="exportarCSV()">📥 Exportar CSV</button>
