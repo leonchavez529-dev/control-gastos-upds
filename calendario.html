@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Módulo de Calendario - Control Financiero</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-nav: #1e293b;
+      --bg-card: #1e293b;
+      --bg-cell: #162032;
+      --border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --green: #10b981;
+      --red: #ef4444;
+      --blue: #3b82f6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      background: var(--bg-nav);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      padding: 7px 12px;
+      border-radius: 6px;
+      transition: 0.15s;
+    }
+    nav a:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+    nav a.active {
+      background: #283548;
+      color: #60a5fa;
+      font-weight: 600;
+    }
+    .btn-csv {
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-csv:hover { background: #15803d; }
+
+    .container {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 16px 32px;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .cal-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .cal-month {
+      font-size: 18px;
+      font-weight: 700;
+      color: #60a5fa;
+      margin-bottom: 16px;
+      text-transform: lowercase;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+    .cal-dow {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 8px 4px;
+      background: #172236;
+      border-radius: 6px;
+    }
+    .cal-day {
+      background: var(--bg-cell);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      min-height: 84px;
+      padding: 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 4px;
+      transition: 0.15s;
+    }
+    .cal-day:hover { border-color: #60a5fa; }
+    .cal-day.empty { background: transparent; border-color: transparent; cursor: default; }
+
+    .day-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+    }
+    .day-number { font-size: 15px; font-weight: 700; }
+    .day-flag-open {
+      font-size: 10px;
+      font-weight: 600;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 5px;
+      border-radius: 5px;
+    }
+    .day-flag-closed {
+      font-size: 10px;
+      font-weight: 600;
+      color: #f87171;
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      padding: 2px 5px;
+      border-radius: 5px;
+    }
+
+    .day-status { font-size: 12px; text-align: right; color: var(--text-muted); }
+    .day-pos { font-size: 12px; font-weight: 700; text-align: right; color: #34d399; }
+    .day-neg { font-size: 12px; font-weight: 700; text-align: right; color: #f87171; }
+
+    footer {
+      text-align: center;
+      padding: 18px 12px 26px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">📅 Módulo de Calendario</div>
+      <nav>
+        <a href="index.html">1. Registro Diario</a>
+        <a href="calendario.html" class="active">2. Calendario</a>
+        <a href="gastos.html">3. Gastos</a>
+        <a href="ingresos.html">4. ingresos</a>
+        <a href="cierre.html">5. Cierre</a>
+        <a href="respaldo.html">6. Respaldo</a>
+      </nav>
+      <button type="button" class="btn-csv" onclick="exportarCSV()">📥 Exportar CSV</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <section class="card">
+      <div class="cal-title">Calendario Mensual Interactivo</div>
+      <div class="cal-month" id="titulo-mes"></div>
+
+      <div class="cal-grid">
+        <div class="cal-dow">Dom</div>
+        <div class="cal-dow">Lun</div>
+        <div class="cal-dow">Mar</div>
+        <div class="cal-dow">Mié</div>
+        <div class="cal-dow">Jue</div>
+        <div class="cal-dow">Vie</div>
+        <div class="cal-dow">Sáb</div>
+      </div>
+      <div class="cal-grid" id="cuadricula-dias" style="margin-top: 6px;"></div>
+    </section>
+  </div>
+
+  <footer>
+    © 2026 Sistema de Control Financiero - Rodrigo León Chavez (UPDS - La Paz, Bolivia)
+  </footer>
+
+  <script>
+    const ahora = new Date();
+    const anio = ahora.getFullYear();
+    const mes = ahora.getMonth();
+
+    let transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+    let diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+
+    window.onload = function () {
+      renderizarCalendario();
+    };
+
+    function irAIndexConFecha(fechaISO) {
+      localStorage.setItem('gastos_app_fecha_activa', fechaISO);
+      window.location.href = `index.html?fecha=${encodeURIComponent(fechaISO)}`;
+    }
+
+    function renderizarCalendario() {
+      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+      diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+
+      document.getElementById('titulo-mes').textContent =
+        new Date(anio, mes, 1).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+
+      const grid = document.getElementById('cuadricula-dias');
+      grid.innerHTML = '';
+
+      const primerDia = new Date(anio, mes, 1).getDay();
+      const diasEnMes = new Date(anio, mes + 1, 0).getDate();
+
+      for (let i = 0; i < primerDia; i++) {
+        const vacia = document.createElement('div');
+        vacia.className = 'cal-day empty';
+        grid.appendChild(vacia);
+      }
+
+      for (let d = 1; d <= diasEnMes; d++) {
+        const fechaISO = `${anio}-${String(mes + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const movs = transacciones.filter(t => t.fecha === fechaISO);
+        const cerrado = diasCerrados.includes(fechaISO);
+
+        let balanceDia = 0;
+        movs.forEach(t => {
+          const m = parseFloat(t.monto) || 0;
+          if (t.tipo === 'ingreso') balanceDia += m;
+          if (t.tipo === 'gasto') balanceDia -= m;
+        });
+
+        const celda = document.createElement('div');
+        celda.className = 'cal-day';
+        celda.onclick = () => irAIndexConFecha(fechaISO);
+
+        const flagHTML = cerrado
+          ? `<span class="day-flag-closed">Cerrado</span>`
+          : `<span class="day-flag-open">Abierto</span>`;
+
+        let estadoHTML = `<div class="day-status">Sin<br>registros</div>`;
+        if (movs.length > 0) {
+          if (balanceDia >= 0) {
+            estadoHTML = `<div class="day-pos">+$${balanceDia.toFixed(2)}</div>`;
+          } else {
+            estadoHTML = `<div class="day-neg">-$${Math.abs(balanceDia).toFixed(2)}</div>`;
+          }
+        }
+
+        celda.innerHTML = `
+          <div class="day-top">
+            <span class="day-number">${d}</span>
+            ${flagHTML}
+          </div>
+          ${estadoHTML}
+        `;
+        grid.appendChild(celda);
+      }
+    }
+
+    function exportarCSV() {
+      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+      let totalIngresos = 0;
+      let totalGastos = 0;
+      let totalPrestamos = 0;
+
+      let csv = 'ID,Nombre,Fecha,Hora,Tipo,Clasificacion,Descripcion,Monto\n';
+
+      transacciones.forEach(t => {
+        const m = parseFloat(t.monto) || 0;
+        const nombreMostrar = (t.nombre || t.descripcion || 'Sin nombre').replace(/"/g, '""');
+        const catMostrar = (t.categoria || t.clasificacion || '').replace(/"/g, '""');
+        const descMostrar = (t.descripcion || '').replace(/"/g, '""');
+
+        if (t.tipo === 'ingreso') totalIngresos += m;
+        if (t.tipo === 'gasto') totalGastos += m;
+        if (t.tipo === 'prestamo') totalPrestamos += m;
+
+        csv += `${t.id},"${nombreMostrar}",${t.fecha},${t.hora || '--:--:--'},${t.tipo},"${catMostrar}","${descMostrar}",${m.toFixed(2)}\n`;
+      });
+
+      const balanceNeto = totalIngresos - totalGastos;
+      const sumaTotal = totalIngresos + totalGastos + totalPrestamos;
+
+      csv += `\n,,,,,,TOTAL INGRESOS,${totalIngresos.toFixed(2)}\n`;
+      csv += `,,,,,,TOTAL GASTOS Y PERDIDAS,${totalGastos.toFixed(2)}\n`;
+      csv += `,,,,,,TOTAL DEUDAS / PRESTAMOS,${totalPrestamos.toFixed(2)}\n`;
+      csv += `,,,,,,SUMA GENERAL (INGRESOS + GASTOS + PRESTAMOS),${sumaTotal.toFixed(2)}\n`;
+      csv += `,,,,,,BALANCE NETO (INGRESOS - GASTOS),${balanceNeto.toFixed(2)}\n`;
+
+      const hoyISO = `${anio}-${String(mes + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Control_Financiero_${hoyISO}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3. Gastos - Control Financiero</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-nav: #1e293b;
+      --bg-card: #1e293b;
+      --bg-row-hover: #243247;
+      --border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --green: #10b981;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --yellow: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      background: var(--bg-nav);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      padding: 7px 12px;
+      border-radius: 6px;
+      transition: 0.15s;
+    }
+    nav a:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+    nav a.active {
+      background: #283548;
+      color: #60a5fa;
+      font-weight: 600;
+    }
+    .btn-csv {
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-csv:hover { background: #15803d; }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 16px 32px;
+      flex: 1;
+    }
+
+    @media (max-width: 768px) {
+      .header-inner { justify-content: center; text-align: center; }
+    }
+
+    .total-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--red);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .total-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .total-amount {
+      font-size: 26px;
+      font-weight: 700;
+      color: #f87171;
+    }
+    .total-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title { font-size: 19px; font-weight: 700; }
+    .card-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    .subtotal-badge {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f87171;
+    }
+    .subtotal-badge.deuda {
+      color: #fbbf24;
+    }
+
+    .tag-gasto {
+      background: rgba(239, 68, 68, 0.16);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .tag-deuda {
+      background: rgba(245, 158, 11, 0.16);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    th { color: var(--text-muted); font-weight: 600; }
+    tbody tr:hover { background: var(--bg-row-hover); }
+
+    .btn-del {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 18px 12px 26px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">📉 Gastos y Deudas por Pagar</div>
+      <nav>
+        <a href="index.html">1. Registro Diario</a>
+        <a href="calendario.html">2. Calendario</a>
+        <a href="gastos.html" class="active">3. Gastos</a>
+        <a href="ingresos.html">4. ingreos</a>
+        <a href="cierre.html">5. Cierre</a>
+        <a href="respaldo.html">6. Respaldo</a>
+      </nav>
+      <button type="button" class="btn-csv" onclick="exportarCSV()">📥 Exportar CSV</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <section class="total-box">
+      <div>
+        <div class="total-label">Total Gastos + Deudas por Pagar</div>
+        <div class="total-sub" id="detalle-totales">Gastos: $0.00 | Deudas por Pagar: $0.00</div>
+      </div>
+      <div class="total-amount" id="total-general-gastos">$0.00</div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Gastos</div>
+          <div class="card-subtitle">Todos los movimientos registrados como Gasto</div>
+        </div>
+        <div class="subtotal-badge" id="subtotal-gastos">Total: $0.00</div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Clasificación</th>
+              <th>Descripción</th>
+              <th>Monto</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-gastos"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Deudas / Préstamos a Pagar</div>
+          <div class="card-subtitle">Dinero que te prestaron y tienes pendiente por pagar</div>
+        </div>
+        <div class="subtotal-badge deuda" id="subtotal-deudas">Total: $0.00</div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Clasificación</th>
+              <th>Descripción</th>
+              <th>Monto</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-deudas-pagar"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    © 2026 Sistema de Control Financiero - Rodrigo León Chavez (UPDS - La Paz, Bolivia)
+  </footer>
+
+  <script>
+    const ahora = new Date();
+    const fechaHoyISO = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+
+    let transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+    let diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+
+    window.onload = function () {
+      renderizarTablas();
+    };
+
+    function esGasto(t) {
+      return t.tipo === 'gasto';
+    }
+
+    function esDeudaPorPagar(t) {
+      return t.tipo === 'prestamo' && (
+        t.categoria === 'me_prestaron' ||
+        (t.clasificacion || '').toLowerCase().includes('me prestaron') ||
+        (t.clasificacion || '').toLowerCase().includes('por pagar')
+      );
+    }
+
+    function eliminarRegistro(id) {
+      diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+
+      const item = transacciones.find(t => t.id === id);
+      if (!item) return;
+
+      if (diasCerrados.includes(item.fecha)) {
+        alert('No se puede eliminar un registro de un día cerrado (' + item.fecha + ').');
+        return;
+      }
+
+      transacciones = transacciones.filter(t => t.id !== id);
+      localStorage.setItem('gastos_app_transacciones', JSON.stringify(transacciones));
+      renderizarTablas();
+    }
+
+    function renderizarTablas() {
+      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+
+      const tbodyGastos = document.getElementById('tabla-gastos');
+      const tbodyDeudas = document.getElementById('tabla-deudas-pagar');
+      tbodyGastos.innerHTML = '';
+      tbodyDeudas.innerHTML = '';
+
+      const listaGastos = transacciones.filter(esGasto);
+      const listaDeudas = transacciones.filter(esDeudaPorPagar);
+
+      let sumaGastos = 0;
+      let sumaDeudas = 0;
+
+      if (listaGastos.length === 0) {
+        tbodyGastos.innerHTML = '<tr><td colspan="8" style="color:var(--text-muted);">No hay gastos registrados.</td></tr>';
+      } else {
+        listaGastos.forEach(t => {
+          const monto = parseFloat(t.monto) || 0;
+          sumaGastos += monto;
+          const catTexto = t.categoria === 'mayor' ? 'Gasto Mayor' : 'Gasto';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${t.id}</td>
+            <td>${t.nombre || 'Sin nombre'}</td>
+            <td>${t.fecha}</td>
+            <td>${t.hora || '--:--:--'}</td>
+            <td><span class="tag-gasto">${catTexto}</span></td>
+            <td>${t.descripcion || '—'}</td>
+            <td>$${monto.toFixed(2)}</td>
+            <td><button type="button" class="btn-del" onclick="eliminarRegistro(${t.id})">Eliminar</button></td>
+          `;
+          tbodyGastos.appendChild(tr);
+        });
+      }
+
+      if (listaDeudas.length === 0) {
+        tbodyDeudas.innerHTML = '<tr><td colspan="8" style="color:var(--text-muted);">No hay deudas o préstamos a pagar registrados.</td></tr>';
+      } else {
+        listaDeudas.forEach(t => {
+          const monto = parseFloat(t.monto) || 0;
+          sumaDeudas += monto;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${t.id}</td>
+            <td>${t.nombre || 'Sin nombre'}</td>
+            <td>${t.fecha}</td>
+            <td>${t.hora || '--:--:--'}</td>
+            <td><span class="tag-deuda">Deuda por Pagar</span></td>
+            <td>${t.descripcion || '—'}</td>
+            <td>$${monto.toFixed(2)}</td>
+            <td><button type="button" class="btn-del" onclick="eliminarRegistro(${t.id})">Eliminar</button></td>
+          `;
+          tbodyDeudas.appendChild(tr);
+        });
+      }
+
+      const totalCombinado = sumaGastos + sumaDeudas;
+      document.getElementById('subtotal-gastos').textContent = `Total: $${sumaGastos.toFixed(2)}`;
+      document.getElementById('subtotal-deudas').textContent = `Total: $${sumaDeudas.toFixed(2)}`;
+      document.getElementById('detalle-totales').textContent =
+        `Gastos: $${sumaGastos.toFixed(2)} | Deudas por Pagar: $${sumaDeudas.toFixed(2)}`;
+      document.getElementById('total-general-gastos').textContent = `$${totalCombinado.toFixed(2)}`;
+    }
+
+    function exportarCSV() {
+      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+      let totalIngresos = 0;
+      let totalGastos = 0;
+      let totalPrestamos = 0;
+
+      let csv = 'ID,Nombre,Fecha,Hora,Tipo,Clasificacion,Descripcion,Monto\n';
+
+      transacciones.forEach(t => {
+        const m = parseFloat(t.monto) || 0;
+        const nombreMostrar = (t.nombre || 'Sin nombre').replace(/"/g, '""');
+        const catMostrar = (t.categoria || t.clasificacion || '').replace(/"/g, '""');
+        const descMostrar = (t.descripcion || '').replace(/"/g, '""');
+
+        if (t.tipo === 'ingreso') totalIngresos += m;
+        if (t.tipo === 'gasto') totalGastos += m;
+        if (t.tipo === 'prestamo') totalPrestamos += m;
+
+        csv += `${t.id},"${nombreMostrar}",${t.fecha},${t.hora || '--:--:--'},${t.tipo},"${catMostrar}","${descMostrar}",${m.toFixed(2)}\n`;
+      });
+
+      const balanceNeto = totalIngresos - totalGastos;
+      const sumaTotal = totalIngresos + totalGastos + totalPrestamos;
+
+      csv += `\n,,,,,,TOTAL INGRESOS,${totalIngresos.toFixed(2)}\n`;
+      csv += `,,,,,,TOTAL GASTOS Y PERDIDAS,${totalGastos.toFixed(2)}\n`;
+      csv += `,,,,,,TOTAL DEUDAS / PRESTAMOS,${totalPrestamos.toFixed(2)}\n`;
+      csv += `,,,,,,SUMA GENERAL (INGRESOS + GASTOS + PRESTAMOS),${sumaTotal.toFixed(2)}\n`;
+      csv += `,,,,,,BALANCE NETO (INGRESOS - GASTOS),${balanceNeto.toFixed(2)}\n`;
+
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Control_Financiero_${fechaHoyISO}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

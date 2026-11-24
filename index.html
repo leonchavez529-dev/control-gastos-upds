@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control de Gastos - Panel Principal</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-nav: #1e293b;
+      --bg-card: #1e293b;
+      --bg-input: #0f172a;
+      --border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --green: #10b981;
+      --red: #ef4444;
+      --blue: #3b82f6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; }
+
+    header {
+      background: var(--bg-nav);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      padding: 7px 12px;
+      border-radius: 6px;
+      transition: 0.15s;
+    }
+    nav a:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+    nav a.active {
+      background: #283548;
+      color: #60a5fa;
+      font-weight: 600;
+    }
+    .btn-csv {
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-csv:hover { background: #15803d; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    @media (max-width: 768px) {
+      .header-inner { justify-content: center; text-align: center; }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title { font-size: 19px; font-weight: 700; }
+    .card-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+    .btn-estado-dia {
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .btn-estado-dia:hover { filter: brightness(1.1); }
+    .btn-estado-dia.cerrado {
+      background: rgba(239, 68, 68, 0.16);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .form-group { margin-bottom: 14px; }
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    select, input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 11px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .btn-submit:hover:not(:disabled) { background: #2563eb; }
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    th { color: var(--text-muted); font-weight: 600; }
+    .btn-del {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">💰 Control Financiero Personal</div>
+      <nav>
+        <a href="index.html" class="active" onclick="limpiarFechaActiva(event)">1. Registro Diario</a>
+        <a href="calendario.html">2. Calendario</a>
+        <a href="gastos.html">3. Gastos</a>
+        <a href="ingresos.html">4. ingresos</a>
+        <a href="cierre.html">5. Cierre</a>
+        <a href="respaldo.html">6. Respaldo</a>
+      </nav>
+      <button type="button" class="btn-csv" onclick="exportarCSV()">📥 Exportar CSV</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Anotación del Día</div>
+          <div class="card-subtitle" id="fecha-activa-txt"></div>
+        </div>
+        <button type="button" id="btn-estado-dia" class="btn-estado-dia" onclick="alternarEstadoDia()">
+          Día Abierto
+        </button>
+      </div>
+
+      <form id="form-registro" onsubmit="guardarRegistro(event)">
+        <div class="form-group">
+          <label for="tipo">Tipo de Movimiento</label>
+          <select id="tipo" onchange="actualizarCategorias()">
+            <option value="gasto">Gasto (Pérdida)</option>
+            <option value="ingreso">Ingreso (Ganancia)</option>
+            <option value="prestamo">Deuda / Préstamo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="categoria">Magnitud / Clasificación</label>
+          <select id="categoria"></select>
+        </div>
+
+        <div class="form-group">
+          <label for="nombre">Nombre / Concepto</label>
+          <input type="text" id="nombre" placeholder="Ej: Selaya, Comida, Préstamo Juan" required />
+        </div>
+
+        <div class="form-group">
+          <label for="monto">Monto ($ USD)</label>
+          <input type="number" id="monto" step="0.01" min="0.01" placeholder="$ 0.00" required />
+        </div>
+
+        <div class="form-group">
+          <label for="descripcion">Descripción / Nota (Opcional — si escribes algo se anota aparte)</label>
+          <input type="text" id="descripcion" placeholder="Déjalo vacío para sumar al mismo nombre..." />
+        </div>
+
+        <button type="submit" id="btn-guardar" class="btn-submit">Guardar Registro</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Movimientos del Día</div>
+          <div class="card-subtitle" id="subtitulo-tabla">ID, Nombre, Fecha, Hora y Monto acumulado</div>
+        </div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Tipo</th>
+              <th>Clasificación</th>
+              <th>Descripción</th>
+              <th>Monto</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-dia"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <footer></footer>
+
+  <script>
+    const ahora = new Date();
+    const fechaHoyISO = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+
+    function obtenerFechaActivaISO() {
+      const params = new URLSearchParams(window.location.search);
+      const fechaParam = params.get('fecha');
+      const fechaGuardada = localStorage.getItem('gastos_app_fecha_activa');
+      const elegida = fechaParam || fechaGuardada || fechaHoyISO;
+      return /^\d{4}-\d{2}-\d{2}$/.test(elegida) ? elegida : fechaHoyISO;
+    }
+
+    let fechaActivaISO = obtenerFechaActivaISO();
+    let transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+    let diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+
+    window.onload = function () {
+      actualizarTextoFecha();
+      actualizarCategorias();
+      actualizarInterfaz();
+    };
+
+    function limpiarFechaActiva(e) {
+      e.preventDefault();
+      localStorage.removeItem('gastos_app_fecha_activa');
+      window.location.href = 'index.html';
+    }
+
+    function formatearFechaLegible(iso) {
+      const partes = iso.split('-').map(Number);
+      const fechaObj = new Date(partes[0], partes[1] - 1, partes[2]);
+      return fechaObj.toLocaleDateString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+
+    function actualizarTextoFecha() {
+      document.getElementById('fecha-activa-txt').innerText =
+        'Fecha: ' + formatearFechaLegible(fechaActivaISO) + ` (${fechaActivaISO})`;
+      document.getElementById('subtitulo-tabla').innerText =
+        `Movimientos correspondientes a ${fechaActivaISO}`;
+    }
+
+    function actualizarCategorias() {
+      const tipo = document.getElementById('tipo').value;
+      const comboCat = document.getElementById('categoria');
+      comboCat.innerHTML = '';
+
+      if (tipo === 'gasto') {
+        comboCat.innerHTML = `<option value="menor">Gasto Menor</option><option value="mayor">Gasto Mayor</option>`;
+      } else if (tipo === 'ingreso') {
+        comboCat.innerHTML = `<option value="salarial">Ingreso Salarial / Principal</option><option value="extra">Ingreso Extra</option>`;
+      } else {
+        comboCat.innerHTML = `<option value="preste">Presté dinero (Por cobrar)</option><option value="me_prestaron">Me prestaron dinero (Por pagar)</option>`;
+      }
+    }
+
+    function obtenerHoraActual() {
+      return new Date().toLocaleTimeString('es-BO', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    }
+
+    function normalizarNombre(texto) {
+      return texto.trim().replace(/\s+/g, ' ').toLowerCase();
+    }
+
+    function alternarEstadoDia() {
+      diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+      if (diasCerrados.includes(fechaActivaISO)) {
+        diasCerrados = diasCerrados.filter(f => f !== fechaActivaISO);
+      } else {
+        diasCerrados.push(fechaActivaISO);
+      }
+      localStorage.setItem('gastos_app_dias_cerrados', JSON.stringify(diasCerrados));
+      actualizarInterfaz();
+    }
+
+    function guardarRegistro(e) {
+      e.preventDefault();
+
+      diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+
+      if (diasCerrados.includes(fechaActivaISO)) {
+        alert('El día está cerrado. No puedes ingresar ningún monto más en esta fecha.');
+        return;
+      }
+
+      const tipo = document.getElementById('tipo').value;
+      const categoria = document.getElementById('categoria').value;
+      const nombre = document.getElementById('nombre').value.trim().replace(/\s+/g, ' ');
+      const monto = parseFloat(document.getElementById('monto').value);
+      const descripcion = document.getElementById('descripcion').value.trim();
+
+      if (!nombre || isNaN(monto) || monto <= 0) return;
+
+      const hora = obtenerHoraActual();
+      const tieneDescripcion = descripcion.length > 0;
+
+      if (!tieneDescripcion) {
+        const claveNombre = normalizarNombre(nombre);
+        const idx = transacciones.findIndex(t =>
+          t.fecha === fechaActivaISO &&
+          t.tipo === tipo &&
+          t.categoria === categoria &&
+          !(t.descripcion && t.descripcion.trim().length > 0) &&
+          normalizarNombre(t.nombre || '') === claveNombre
+        );
+
+        if (idx !== -1) {
+          transacciones[idx].monto = parseFloat((parseFloat(transacciones[idx].monto) + monto).toFixed(2));
+          transacciones[idx].hora = hora;
+        } else {
+          transacciones.push({
+            id: Date.now(),
+            nombre: nombre,
+            fecha: fechaActivaISO,
+            hora: hora,
+            tipo: tipo,
+            categoria: categoria,
+            descripcion: '',
+            monto: monto
+          });
+        }
+      } else {
+        transacciones.push({
+          id: Date.now(),
+          nombre: nombre,
+          fecha: fechaActivaISO,
+          hora: hora,
+          tipo: tipo,
+          categoria: categoria,
+          descripcion: descripcion,
+          monto: monto
+        });
+      }
+
+      localStorage.setItem('gastos_app_transacciones', JSON.stringify(transacciones));
+      document.getElementById('form-registro').reset();
+      actualizarCategorias();
+      actualizarInterfaz();
+    }
+
+    function eliminarRegistro(id) {
+      diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+
+      if (diasCerrados.includes(fechaActivaISO)) {
+        alert('El día está cerrado. No se puede eliminar.');
+        return;
+      }
+
+      transacciones = transacciones.filter(t => t.id !== id);
+      localStorage.setItem('gastos_app_transacciones', JSON.stringify(transacciones));
+      actualizarInterfaz();
+    }
+
+    function actualizarInterfaz() {
+      diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+
+      const estaCerrado = diasCerrados.includes(fechaActivaISO);
+      const btnEstado = document.getElementById('btn-estado-dia');
+      const btnGuardar = document.getElementById('btn-guardar');
+      const inputMonto = document.getElementById('monto');
+      const inputDesc = document.getElementById('descripcion');
+
+      if (estaCerrado) {
+        btnEstado.textContent = 'Día Cerrado (Locked)';
+        btnEstado.className = 'btn-estado-dia cerrado';
+        btnGuardar.disabled = true;
+        inputMonto.disabled = true;
+        inputDesc.disabled = true;
+      } else {
+        btnEstado.textContent = 'Día Abierto';
+        btnEstado.className = 'btn-estado-dia';
+        btnGuardar.disabled = false;
+        inputMonto.disabled = false;
+        inputDesc.disabled = false;
+      }
+
+      const tbody = document.getElementById('tabla-dia');
+      tbody.innerHTML = '';
+      const movsDia = transacciones.filter(t => t.fecha === fechaActivaISO);
+
+      if (movsDia.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="color:var(--text-muted);">Sin movimientos registrados en esta fecha.</td></tr>';
+      } else {
+        movsDia.forEach(t => {
+          const nombreMostrar = t.nombre || 'Sin nombre';
+          const catMostrar = t.categoria || t.clasificacion || '';
+          const descMostrar = t.descripcion || '—';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${t.id}</td>
+            <td>${nombreMostrar}</td>
+            <td>${t.fecha}</td>
+            <td>${t.hora || '--:--:--'}</td>
+            <td>${t.tipo}</td>
+            <td>${catMostrar}</td>
+            <td>${descMostrar}</td>
+            <td>$${(parseFloat(t.monto) || 0).toFixed(2)}</td>
+            <td><button type="button" class="btn-del" onclick="eliminarRegistro(${t.id})">Eliminar</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    function exportarCSV() {
+      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+      let totalIngresos = 0;
+      let totalGastos = 0;
+      let totalPrestamos = 0;
+
+      let csv = 'ID,Nombre,Fecha,Hora,Tipo,Clasificacion,Descripcion,Monto\n';
+
+      transacciones.forEach(t => {
+        const m = parseFloat(t.monto) || 0;
+        const nombreMostrar = (t.nombre || 'Sin nombre').replace(/"/g, '""');
+        const catMostrar = (t.categoria || t.clasificacion || '').replace(/"/g, '""');
+        const descMostrar = (t.descripcion || '').replace(/"/g, '""');
+
+        if (t.tipo === 'ingreso') totalIngresos += m;
+        if (t.tipo === 'gasto') totalGastos += m;
+        if (t.tipo === 'prestamo') totalPrestamos += m;
+
+        csv += `${t.id},"${nombreMostrar}",${t.fecha},${t.hora || '--:--:--'},${t.tipo},"${catMostrar}","${descMostrar}",${m.toFixed(2)}\n`;
+      });
+
+      const balanceNeto = totalIngresos - totalGastos;
+      const sumaTotal = totalIngresos + totalGastos + totalPrestamos;
+
+      csv += `\n,,,,,,TOTAL INGRESOS,${totalIngresos.toFixed(2)}\n`;
+      csv += `,,,,,,TOTAL GASTOS Y PERDIDAS,${totalGastos.toFixed(2)}\n`;
+      csv += `,,,,,,TOTAL DEUDAS / PRESTAMOS,${totalPrestamos.toFixed(2)}\n`;
+      csv += `,,,,,,SUMA GENERAL (INGRESOS + GASTOS + PRESTAMOS),${sumaTotal.toFixed(2)}\n`;
+      csv += `,,,,,,BALANCE NETO (INGRESOS - GASTOS),${balanceNeto.toFixed(2)}\n`;
+
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Control_Financiero_${fechaActivaISO}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

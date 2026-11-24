@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6. Respaldo - Control Financiero</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-nav: #1e293b;
+      --bg-card: #1e293b;
+      --bg-input: #0f172a;
+      --border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --green: #10b981;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --yellow: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      background: var(--bg-nav);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      padding: 7px 12px;
+      border-radius: 6px;
+      transition: 0.15s;
+    }
+    nav a:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+    nav a.active {
+      background: #283548;
+      color: #60a5fa;
+      font-weight: 600;
+    }
+    .btn-csv {
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-csv:hover { background: #15803d; }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 16px 32px;
+      flex: 1;
+    }
+
+    @media (max-width: 768px) {
+      .header-inner { justify-content: center; text-align: center; }
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card-header {
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title { font-size: 19px; font-weight: 700; }
+    .card-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+    .stat-list {
+      list-style: none;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    .stat-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.55);
+    }
+    .stat-list li span:last-child {
+      font-weight: 700;
+      color: #60a5fa;
+    }
+
+    .btn-backup {
+      width: 100%;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-backup:hover { filter: brightness(1.08); }
+
+    .btn-restore {
+      width: 100%;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn-restore:hover { background: #2563eb; }
+
+    input[type="file"], textarea {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+      font-family: Consolas, Monaco, monospace;
+    }
+
+    .msg-box {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: none;
+    }
+    .msg-ok {
+      display: block;
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .msg-err {
+      display: block;
+      background: rgba(239, 68, 68, 0.16);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    footer {
+      text-align: center;
+      padding: 18px 12px 26px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">💾 Copias de Seguridad</div>
+      <nav>
+        <a href="index.html">1. Registro Diario</a>
+        <a href="calendario.html">2. Calendario</a>
+        <a href="gastos.html">3. Gastos</a>
+        <a href="ingresos.html">4. Ingresos</a>
+        <a href="cierre.html">5. Cierre</a>
+        <a href="respaldo.html" class="active">6. Respaldo</a>
+      </nav>
+      <button type="button" class="btn-csv" onclick="exportarCSV()">📥 Exportar CSV</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="grid-2">
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Crear Copia de Seguridad</div>
+          <div class="card-subtitle">Descarga un archivo .json con todos tus datos guardados</div>
+        </div>
+
+        <ul class="stat-list">
+          <li><span>Movimientos guardados:</span><span id="stat-movs">0</span></li>
+          <li><span>Días cerrados:</span><span id="stat-cerrados">0</span></li>
+          <li><span>Monto total acumulado:</span><span id="stat-monto">$0.00</span></li>
+        </ul>
+
+        <button type="button" class="btn-backup" onclick="descargarRespaldo()">⬇️ Descargar Copia de Seguridad (.json)</button>
+        <div id="msg-backup" class="msg-box"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Restablecer Copia de Seguridad</div>
+          <div class="card-subtitle">Recupera tus datos desde un archivo .json o texto pegado</div>
+        </div>
+
+        <input type="file" id="archivo-respaldo" accept=".json,application/json" onchange="leerArchivoRespaldo(event)" />
+        <textarea id="texto-respaldo" placeholder='O pega aquí el contenido JSON de tu copia de seguridad...'></textarea>
+        <button type="button" class="btn-restore" onclick="restablecerRespaldo()">♻️ Restablecer Datos</button>
+        <div id="msg-restore" class="msg-box"></div>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    © 2026 Sistema de Control Financiero - Rodrigo León Chavez (UPDS - La Paz, Bolivia)
+  </footer>
+
+  <script>
+    const ahora = new Date();
+    const fechaHoyISO = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+
+    let transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+    let diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+
+    window.onload = function () {
+      actualizarEstadisticas();
+    };
+
+    function mostrarMensaje(idElemento, texto, esError) {
+      const el = document.getElementById(idElemento);
+      el.textContent = texto;
+      el.className = `msg-box ${esError ? 'msg-err' : 'msg-ok'}`;
+    }
+
+    function actualizarEstadisticas() {
+      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+      diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+
+      const sumaMontos = transacciones.reduce((acc, t) => acc + (parseFloat(t.monto) || 0), 0);
+
+      document.getElementById('stat-movs').textContent = transacciones.length;
+      document.getElementById('stat-cerrados').textContent = diasCerrados.length;
+      document.getElementById('stat-monto').textContent = `$${sumaMontos.toFixed(2)}`;
+    }
+
+    function descargarRespaldo() {
+      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+      diasCerrados = JSON.parse(localStorage.getItem('gastos_app_dias_cerrados')) || [];
+      const fechaActiva = localStorage.getItem('gastos_app_fecha_activa') || fechaHoyISO;
+
+      const respaldo = {
+        app: 'Control Financiero Personal - UPDS',
+        fecha_respaldo: new Date().toISOString(),
+        gastos_app_transacciones: transacciones,
+        gastos_app_dias_cerrados: diasCerrados,
+        gastos_app_fecha_activa: fechaActiva
+      };
+
+      const contenido = JSON.stringify(respaldo, null, 2);
+      const blob = new Blob([contenido], { type: 'application/json;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Respaldo_Financiero_${fechaHoyISO}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      mostrarMensaje('msg-backup', 'Copia de seguridad descargada correctamente.', false);
+    }
+
+    function leerArchivoRespaldo(e) {
+      const archivo = e.target.files && e.target.files[0];
+      if (!archivo) return;
+
+      const lector = new FileReader();
+      lector.onload = function (ev) {
+        document.getElementById('texto-respaldo').value = ev.target.result || '';
+        mostrarMensaje('msg-restore', `Archivo "${archivo.name}" cargado. Pulsa "Restablecer Datos" para aplicar.`, false);
+      };
+      lector.readAsText(archivo, 'utf-8');
+    }
+
+    function restablecerRespaldo() {
+      const raw = document.getElementById('texto-respaldo').value.trim();
+      if (!raw) {
+        mostrarMensaje('msg-restore', 'Selecciona un archivo .json o pega el texto del respaldo primero.', true);
+        return;
+      }
+
+      try {
+        const datos = JSON.parse(raw);
+        let nuevasTransacciones = [];
+        let nuevosCerrados = [];
+        let nuevaFechaActiva = null;
+
+        if (Array.isArray(datos)) {
+          nuevasTransacciones = datos;
+        } else if (datos && typeof datos === 'object') {
+          if (Array.isArray(datos.gastos_app_transacciones)) {
+            nuevasTransacciones = datos.gastos_app_transacciones;
+          } else if (Array.isArray(datos.transacciones)) {
+            nuevasTransacciones = datos.transacciones;
+          } else {
+            throw new Error('Formato no válido');
+          }
+
+          if (Array.isArray(datos.gastos_app_dias_cerrados)) {
+            nuevosCerrados = datos.gastos_app_dias_cerrados;
+          } else if (Array.isArray(datos.diasCerrados)) {
+            nuevosCerrados = datos.diasCerrados;
+          }
+
+          if (typeof datos.gastos_app_fecha_activa === 'string' && datos.gastos_app_fecha_activa) {
+            nuevaFechaActiva = datos.gastos_app_fecha_activa;
+          }
+        } else {
+          throw new Error('Formato no válido');
+        }
+
+        localStorage.setItem('gastos_app_transacciones', JSON.stringify(nuevasTransacciones));
+        localStorage.setItem('gastos_app_dias_cerrados', JSON.stringify(nuevosCerrados));
+        if (nuevaFechaActiva) {
+          localStorage.setItem('gastos_app_fecha_activa', nuevaFechaActiva);
+        }
+
+        actualizarEstadisticas();
+        mostrarMensaje(
+          'msg-restore',
+          `Respaldo restablecido: ${nuevasTransacciones.length} movimientos y ${nuevosCerrados.length} días cerrados.`,
+          false
+        );
+      } catch (err) {
+        mostrarMensaje('msg-restore', 'El archivo o texto no tiene un formato JSON válido de respaldo.', true);
+      }
+    }
+
+    function exportarCSV() {
+      transacciones = JSON.parse(localStorage.getItem('gastos_app_transacciones')) || [];
+      let totalIngresos = 0;
+      let totalGastos = 0;
+      let totalPrestamos = 0;
+
+      let csv = 'ID,Nombre,Fecha,Hora,Tipo,Clasificacion,Descripcion,Monto\n';
+
+      transacciones.forEach(t => {
+        const m = parseFloat(t.monto) || 0;
+        const nombreMostrar = (t.nombre || 'Sin nombre').replace(/"/g, '""');
+        const catMostrar = (t.categoria || t.clasificacion || '').replace(/"/g, '""');
+        const descMostrar = (t.descripcion || '').replace(/"/g, '""');
+
+        if (t.tipo === 'ingreso') totalIngresos += m;
+        if (t.tipo === 'gasto') totalGastos += m;
+        if (t.tipo === 'prestamo') totalPrestamos += m;
+
+        csv += `${t.id},"${nombreMostrar}",${t.fecha},${t.hora || '--:--:--'},${t.tipo},"${catMostrar}","${descMostrar}",${m.toFixed(2)}\n`;
+      });
+
+      const balanceNeto = totalIngresos - totalGastos;
+      const sumaTotal = totalIngresos + totalGastos + totalPrestamos;
+
+      csv += `\n,,,,,,TOTAL INGRESOS,${totalIngresos.toFixed(2)}\n`;
+      csv += `,,,,,,TOTAL GASTOS Y PERDIDAS,${totalGastos.toFixed(2)}\n`;
+      csv += `,,,,,,TOTAL DEUDAS / PRESTAMOS,${totalPrestamos.toFixed(2)}\n`;
+      csv += `,,,,,,SUMA GENERAL (INGRESOS + GASTOS + PRESTAMOS),${sumaTotal.toFixed(2)}\n`;
+      csv += `,,,,,,BALANCE NETO (INGRESOS - GASTOS),${balanceNeto.toFixed(2)}\n`;
+
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Control_Financiero_${fechaHoyISO}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
